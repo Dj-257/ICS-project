@@ -1,0 +1,30 @@
+window {
+    background-color: #2E2E2E;
+    color: #FFFFFF; 
+}
+
+
+button {
+    box-shadow: none;
+    background-image: none;
+    background-color: #4a4a4a; 
+    color: #FFFFFF; 
+    border: none; 
+    padding: 10px;
+    border-radius: 30px; 
+}
+
+button:hover {
+    background-color: #5a5a5a; 
+}
+
+label {
+    color: #FFFFFF;
+}
+
+entry {
+    background-color: #3E3E3E;
+    color: #FFFFFF; 
+    border: 1px solid #4A4A4A;
+}
+

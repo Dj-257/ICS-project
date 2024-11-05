@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
     gtk_init(&argc, &argv);
 
     GtkWidget *window;
-    GtkWidget *login_fixed, *register_fixed;
+    GtkWidget *login_fixed, *register_fixed, *main_fixed;
     GtkWidget *stack;
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -24,13 +24,22 @@ int main(int argc, char *argv[]) {
     gtk_window_set_title(GTK_WINDOW(window), "Maze Solver");
     gtk_window_set_default_size(GTK_WINDOW(window), 380, 300);
     gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
+
+    GtkCssProvider *css_provider = gtk_css_provider_new();
+    gtk_css_provider_load_from_file(css_provider, g_file_new_for_path("style.css"), NULL);
+    gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), GTK_STYLE_PROVIDER(css_provider), GTK_STYLE_PROVIDER_PRIORITY_USER);
+
     
     stack = gtk_stack_new();
     login_fixed = gtk_fixed_new();
     register_fixed = gtk_fixed_new();
+    main_fixed = gtk_fixed_new();
 
     gtk_stack_add_named(GTK_STACK(stack), login_fixed, "login");
     gtk_stack_add_named(GTK_STACK(stack), register_fixed, "register");
+    gtk_stack_add_named(GTK_STACK(stack), main_fixed, "main");
+    gtk_stack_set_transition_type(GTK_STACK(stack), GTK_STACK_TRANSITION_TYPE_SLIDE_LEFT_RIGHT);
+    gtk_stack_set_transition_duration(GTK_STACK(stack), 500);
 
     // Login page
 
@@ -53,7 +62,7 @@ int main(int argc, char *argv[]) {
     gtk_fixed_put(GTK_FIXED(login_fixed), password, 150, 100);
     gtk_fixed_put(GTK_FIXED(login_fixed), login_button, 160, 150);
     gtk_fixed_put(GTK_FIXED(login_fixed), label3, 120, 200);
-    gtk_fixed_put(GTK_FIXED(login_fixed), register_button, 150, 240);
+    gtk_fixed_put(GTK_FIXED(login_fixed), register_button, 155, 240);
 
     // Register page
 
@@ -74,11 +83,14 @@ int main(int argc, char *argv[]) {
     gtk_fixed_put(GTK_FIXED(register_fixed), register_username, 150, 50);
     gtk_fixed_put(GTK_FIXED(register_fixed), register_password, 150, 100);
     gtk_fixed_put(GTK_FIXED(register_fixed), register_button_new, 160, 150);
-    gtk_fixed_put(GTK_FIXED(register_fixed), back_button, 150, 200);
+    gtk_fixed_put(GTK_FIXED(register_fixed), back_button, 145, 200);
 
     g_signal_connect(register_button, "clicked", G_CALLBACK(on_register_button_clicked), stack);
     g_signal_connect(back_button, "clicked", G_CALLBACK(on_back_button_clicked), stack);
 
+    // Main page
+
+    
 
     gtk_container_add(GTK_CONTAINER(window), stack);
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
