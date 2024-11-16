@@ -92,7 +92,7 @@ static void on_generate_button_clicked(GtkWidget *button, gpointer user_data) {
     const char *size_text = gtk_entry_get_text(GTK_ENTRY(maze_size_entry));
     int size = atoi(size_text);
 
-    if (size <= 0 || size > 300) { // Add size limits as needed
+    if (size <= 0 || size > 300) { 
         g_print("Invalid maze size. Please enter a positive integer up to 100.\n");
         return;
     }
@@ -215,6 +215,11 @@ void on_back_button_clicked(GtkWidget *button, gpointer user_data) {
     gtk_stack_set_visible_child_name(stack, "login");
 }
 
+void on_logout_button_clicked(GtkWidget *button, gpointer user_data) {
+    gtk_widget_hide(main_window);
+    gtk_widget_show(window);
+}
+
 void main_window_create(const char *username) {
 
     maze_data.size = 0;
@@ -308,6 +313,7 @@ void main_window_create(const char *username) {
 
     g_signal_connect(drawing_area, "draw", G_CALLBACK(draw_maze_callback), &maze_data);
     g_signal_connect(generate_button, "clicked", G_CALLBACK(on_generate_button_clicked), drawing_area);
+    g_signal_connect(logout_button, "clicked", G_CALLBACK(on_logout_button_clicked), NULL);
 
    
     gtk_widget_show_all(main_window);
