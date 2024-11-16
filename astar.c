@@ -26,7 +26,7 @@ int heuristic(int x1, int y1, int x2, int y2) {
 }
 
 // Function to check if a cell is within maze bounds and is passable
-int isValid(int x, int y, int maze[N][N]) {
+int isValid_astar(int x, int y, int maze[N][N]) {
     return (x >= 0 && x < N && y >= 0 && y < N && (maze[x][y] == 1 || maze[x][y] == 4));
 }
 
@@ -135,7 +135,7 @@ void aStarMaze(int maze[N][N]) {
             int newX = currentX + dir[i][0];
             int newY = currentY + dir[i][1];
 
-            if (isValid(newX, newY, maze) && !closedList[newX][newY]) {
+            if (isValid_astar(newX, newY, maze) && !closedList[newX][newY]) {
                 int newGCost = nodes[currentX][currentY].gCost + 1;
                 int newHCost = heuristic(newX, newY, endX, endY);
                 int newFCost = newGCost + newHCost;
