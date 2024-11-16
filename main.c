@@ -4,6 +4,7 @@
 #include <gtk/gtk.h>
 
 
+
 //global variables
 GtkWidget *window, *main_window;
 GtkWidget *stack;
@@ -15,6 +16,78 @@ GtkWidget *login_button, *register_button;
 GtkWidget *register_button_new, *back_button;
 GtkWidget *label1, *label2, *label3, *label4, *label5;
 GtkWidget *error_label = NULL, *success_label = NULL, *username_error_label = NULL, *empty_error_label = NULL;
+
+#define SIZE 40
+int maze[SIZE][SIZE];
+
+int directions[4][2] = {
+    {-1, 0}, // Up
+    {1, 0},  // Down
+    {0, -1}, // Left
+    {0, 1}   // Right
+};
+
+int is_valid(int x, int y) {
+    return (x >= 0 && x < SIZE && y >= 0 && y < SIZE && maze[x][y] == 0);
+}
+
+// Recursive function to generate the maze using DFS
+void generate_maze(int x, int y) {
+    maze[x][y] = 1;  // Mark the cell as a path
+
+    // Shuffle directions to ensure random movement
+    for (int i = 0; i < 4; i++) {
+        int j = rand() % 4;
+        int temp[2] = {directions[i][0], directions[i][1]};
+        directions[i][0] = directions[j][0];
+        directions[i][1] = directions[j][1];
+        directions[j][0] = temp[0];
+        directions[j][1] = temp[1];
+    }
+
+    // Visit each direction
+    for (int i = 0; i < 4; i++) {
+        int nx = x + directions[i][0] * 2;
+        int ny = y + directions[i][1] * 2;
+
+        if (is_valid(nx, ny)) {
+            maze[x + directions[i][0]][y + directions[i][1]] = 1; // Remove wall
+            generate_maze(nx, ny);
+        }
+    }
+}
+
+// Function to draw the maze in the GTK window
+static void draw_maze(GtkDrawingArea *area, cairo_t *cr, gpointer user_data) {
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+           if (maze[i][j] == 0) {
+                // Draw wall (black color)
+                cairo_set_source_rgb(cr, 0, 0, 0);
+            }
+            else if(i==0 && j==0)
+            {
+                cairo_set_source_rgb(cr, 0, 1, 0);
+            }
+            else if(i==SIZE-2 && j==SIZE-2)
+            {
+                cairo_set_source_rgb(cr, 1, 0, 0);
+            }
+            else if(i==SIZE-1 && j==SIZE-1)
+            {
+                cairo_set_source_rgb(cr, 0, 0, 0);
+            }
+            else
+            {     // Draw path (white color)
+                cairo_set_source_rgb(cr, 1, 1, 1);
+            }
+            cairo_rectangle(cr, j * 20, i * 20, 20, 20);
+            cairo_fill(cr);
+        }
+    }
+}
+
+
 
 void display_message(GtkWidget **label, GtkWidget *parent, const char *message, int x, int y) {
     if (*label != NULL) {
@@ -121,23 +194,46 @@ void main_window_create() {
     gtk_widget_set_halign(generate_button, GTK_ALIGN_CENTER);
     gtk_grid_attach(GTK_GRID(grid), generate_button, 0, 2, 2, 1);
 
+    srand(time(NULL)); // Seed the random number generator
+    // Initialize the maze with walls
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            maze[i][j] = 0; // Initialize walls
+        }
+    }
+
+    // Generate the maze starting from (0, 0)
+    generate_maze(0, 0);
+    maze[0][0]=3;
+    maze[SIZE-2][SIZE-2]=4;
+
+
     GtkWidget *maze_area = gtk_label_new("Maze will appear here.");
     gtk_widget_set_hexpand(maze_area, TRUE);
     gtk_widget_set_vexpand(maze_area, TRUE);
     gtk_widget_set_halign(maze_area, GTK_ALIGN_CENTER);
     gtk_widget_set_valign(maze_area, GTK_ALIGN_CENTER);
     gtk_grid_attach(GTK_GRID(grid), maze_area, 0, 3, 2, 1);
+    GtkWidget *drawing_area = gtk_drawing_area_new();
+    gtk_widget_set_size_request(drawing_area, SIZE * 20, SIZE * 20);
+    g_signal_connect(drawing_area, "draw", G_CALLBACK(draw_maze), NULL);
+    gtk_container_add(GTK_CONTAINER(window), drawing_area);
+    gtk_grid_attach(GTK_GRID(grid), drawing_area, 0, 4, 2, 1);
+
+
+
+
 
     GtkWidget *solve_button = gtk_button_new_with_label("Solve Maze");
     gtk_widget_set_halign(solve_button, GTK_ALIGN_CENTER); 
-    gtk_grid_attach(GTK_GRID(grid), solve_button, 0, 4, 2, 1);
+    gtk_grid_attach(GTK_GRID(grid), solve_button, 0, 5, 2, 1);
 
     GtkWidget *solved_maze_area = gtk_label_new("Solved maze will appear here.");
     gtk_widget_set_hexpand(solved_maze_area, TRUE);
     gtk_widget_set_vexpand(solved_maze_area, TRUE);
     gtk_widget_set_halign(solved_maze_area, GTK_ALIGN_CENTER);
     gtk_widget_set_valign(solved_maze_area, GTK_ALIGN_CENTER);
-    gtk_grid_attach(GTK_GRID(grid), solved_maze_area, 0, 5, 2, 1);
+    gtk_grid_attach(GTK_GRID(grid), solved_maze_area, 0, 6, 2, 1);
     
 
     
