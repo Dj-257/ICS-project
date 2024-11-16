@@ -24,12 +24,12 @@ int heuristic(int x1, int y1, int x2, int y2) {
 }
 
 // Function to check if a cell is within maze bounds and is passable
-int isValid(int x, int y, int maze[][100]) {  // Use a large enough size for maze
-    return (x >= 0 && x < 100 && y >= 0 && y < 100 && (maze[x][y] == 1 || maze[x][y] == 4));
+int isValid(int x, int y, int maze[][1000]) {  // Use a large enough size for maze
+    return (x >= 0 && x < 1000 && y >= 0 && y < 1000 && (maze[x][y] == 1 || maze[x][y] == 4));
 }
 
 // Function to trace the path from the exit to the start
-void tracePath(Node nodes[][100], int maze[][100], int endX, int endY, int N) {
+void tracePath(Node nodes[][1000], int maze[][1000], int endX, int endY, int N) {
     int x = endX, y = endY;
 
     while (nodes[x][y].parentX != -1 && nodes[x][y].parentY != -1) {
