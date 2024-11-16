@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
     // Initialize GTK
     gtk_init(&argc, &argv);
 
-    GtkWidget *window = gtk_window_new();
+    GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), "Random Maze");
     gtk_window_set_default_size(GTK_WINDOW(window), SIZE * 20, SIZE * 20);
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);

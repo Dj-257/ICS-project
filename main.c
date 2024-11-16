@@ -8,6 +8,7 @@
 GtkWidget *window, *main_window;
 GtkWidget *stack;
 GtkWidget *login_fixed, *register_fixed;
+GtkWidget *box ,*grid;
 GtkWidget *username, *password;
 GtkWidget *register_username, *register_password;
 GtkWidget *login_button, *register_button;
@@ -23,6 +24,7 @@ void display_message(GtkWidget **label, GtkWidget *parent, const char *message, 
     gtk_fixed_put(GTK_FIXED(parent), *label, x, y);
     gtk_widget_show(*label);
 }
+
 
 void on_register_button_clicked(GtkWidget *button, gpointer user_data) {
 
@@ -79,13 +81,68 @@ void on_back_button_clicked(GtkWidget *button, gpointer user_data) {
 void main_window_create() {
     
     main_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_position(GTK_WINDOW(main_window), GTK_WIN_POS_CENTER);
     gtk_window_set_title(GTK_WINDOW(main_window), "Maze Solver");
+    gtk_window_maximize(GTK_WINDOW(main_window));
+    gtk_window_set_resizable(GTK_WINDOW(main_window), TRUE);
     gtk_window_set_default_size(GTK_WINDOW(main_window), 800, 600);
-    gtk_window_set_resizable(GTK_WINDOW(main_window), FALSE);
 
     g_signal_connect(main_window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+
+
+    box=gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+    gtk_container_add(GTK_CONTAINER(main_window), box);
+
+    gtk_widget_set_margin_top(box, 20);
+    gtk_widget_set_margin_bottom(box, 20);
+    gtk_widget_set_margin_start(box, 20);
+    gtk_widget_set_margin_end(box, 20);
+
+    grid=gtk_grid_new();
+    gtk_box_pack_start(GTK_BOX(box), grid, TRUE, TRUE, 0);
+    gtk_grid_set_row_spacing(GTK_GRID(grid), 20);
+    gtk_grid_set_column_spacing(GTK_GRID(grid), 10);
+
+    GtkWidget *welcome_label = gtk_label_new("Welcome, Username!");
+    gtk_widget_set_halign(welcome_label, GTK_ALIGN_START);
+    gtk_grid_attach(GTK_GRID(grid), welcome_label, 0, 0, 1, 1);
+
+    GtkWidget *logout_button = gtk_button_new_with_label("Logout");
+    gtk_widget_set_halign(logout_button, GTK_ALIGN_END);
+    gtk_grid_attach(GTK_GRID(grid), logout_button, 1, 0, 1, 1);
+
+    GtkWidget *maze_size_label = gtk_label_new("Maze Size:");
+    gtk_widget_set_halign(maze_size_label, GTK_ALIGN_START);
+    gtk_grid_attach(GTK_GRID(grid), maze_size_label, 0, 1, 1, 1);
+
+    GtkWidget *maze_size_entry = gtk_entry_new();
+    gtk_grid_attach(GTK_GRID(grid), maze_size_entry, 1, 1, 1, 1);
+
+    GtkWidget *generate_button = gtk_button_new_with_label("Generate Maze");
+    gtk_widget_set_halign(generate_button, GTK_ALIGN_CENTER);
+    gtk_grid_attach(GTK_GRID(grid), generate_button, 0, 2, 2, 1);
+
+    GtkWidget *maze_area = gtk_label_new("Maze will appear here.");
+    gtk_widget_set_hexpand(maze_area, TRUE);
+    gtk_widget_set_vexpand(maze_area, TRUE);
+    gtk_widget_set_halign(maze_area, GTK_ALIGN_CENTER);
+    gtk_widget_set_valign(maze_area, GTK_ALIGN_CENTER);
+    gtk_grid_attach(GTK_GRID(grid), maze_area, 0, 3, 2, 1);
+
+    GtkWidget *solve_button = gtk_button_new_with_label("Solve Maze");
+    gtk_widget_set_halign(solve_button, GTK_ALIGN_CENTER); 
+    gtk_grid_attach(GTK_GRID(grid), solve_button, 0, 4, 2, 1);
+
+    GtkWidget *solved_maze_area = gtk_label_new("Solved maze will appear here.");
+    gtk_widget_set_hexpand(solved_maze_area, TRUE);
+    gtk_widget_set_vexpand(solved_maze_area, TRUE);
+    gtk_widget_set_halign(solved_maze_area, GTK_ALIGN_CENTER);
+    gtk_widget_set_valign(solved_maze_area, GTK_ALIGN_CENTER);
+    gtk_grid_attach(GTK_GRID(grid), solved_maze_area, 0, 5, 2, 1);
+    
+
+    
     gtk_widget_show_all(main_window);
+    
 }
 
 void on_login_button_clicked(GtkWidget *button, gpointer user_data) {
@@ -133,7 +190,6 @@ void on_login_button_clicked(GtkWidget *button, gpointer user_data) {
 
     if (is_auth) {
         gtk_widget_hide(window);
-        window = NULL;
         main_window_create();
     }
     else {
