@@ -2,11 +2,11 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define SIZE 30  // Size of the maze (SIZE x SIZE)
+#define SIZE 30
+#define MAX_EXTRA_PATHS 15  // Limit on how many extra paths to add
 
-int maze[SIZE][SIZE];
+int maze[SIZE][SIZE];  
 
-// Directions for moving in the maze (up, down, left, right)
 int directions[4][2] = {
     {-1, 0}, // Up
     {1, 0},  // Down
@@ -14,14 +14,14 @@ int directions[4][2] = {
     {0, 1}   // Right
 };
 
-// Function to check if a cell is within the maze bounds
+// Function to check if a cell is within the maze bounds and if it is not already a path (0)
 int is_valid(int x, int y) {
     return (x >= 0 && x < SIZE && y >= 0 && y < SIZE && maze[x][y] == 0);
 }
 
 // Recursive function to generate the maze using DFS
 void generate_maze(int x, int y) {
-    maze[x][y] = 1;  // Mark the cell as a path
+    maze[x][y] = 1;  // Mark the current cell as a path (1)
 
     // Shuffle directions to ensure random movement
     for (int i = 0; i < 4; i++) {
@@ -33,40 +33,55 @@ void generate_maze(int x, int y) {
         directions[j][1] = temp[1];
     }
 
-    // Visit each direction
+    // Visit each direction (up, down, left, right)
     for (int i = 0; i < 4; i++) {
-        int nx = x + directions[i][0] * 2;
+        int nx = x + directions[i][0] * 2;  // Move 2 steps in one direction
         int ny = y + directions[i][1] * 2;
 
         if (is_valid(nx, ny)) {
-            maze[x + directions[i][0]][y + directions[i][1]] = 1; // Remove wall
-            generate_maze(nx, ny);
+            // If the next cell is valid, mark the wall between current and next cell as path
+            maze[x + directions[i][0]][y + directions[i][1]] = 1;  // Break the wall
+            generate_maze(nx, ny);  // Recursively visit the next cell
         }
     }
 }
 
-// Function to draw the maze in the GTK window
+// Function to introduce extra paths in the maze, creating multiple solutions
+void add_extra_paths() {
+    int extra_paths_added = 0;
+    
+    // Try to add extra paths up to a limit (MAX_EXTRA_PATHS)
+    for (int i = 0; i < SIZE && extra_paths_added < MAX_EXTRA_PATHS; i++) {
+        for (int j = 0; j < SIZE && extra_paths_added < MAX_EXTRA_PATHS; j++) {
+            if (maze[i][j] == 1) {
+                // Randomly decide whether to add a new path with a small probability (e.g., 1 in 5 chance)
+                if (rand() % 5 == 0) {  // 20% chance to add a path
+                    int nx = i + (rand() % 3 - 1); // Randomly step -1, 0, or +1 in x
+                    int ny = j + (rand() % 3 - 1); // Randomly step -1, 0, or +1 in y
+
+                    // Ensure new path is within bounds and not yet a path
+                    if (nx >= 0 && nx < SIZE && ny >= 0 && ny < SIZE && maze[nx][ny] == 0) {
+                        maze[nx][ny] = 1;  // Create a new path
+                        extra_paths_added++; // Increment the path count
+                    }
+                }
+            }
+        }
+    }
+}
+
 static void draw_maze(GtkDrawingArea *area, cairo_t *cr, gpointer user_data) {
     for (int i = 0; i < SIZE; i++) {
         for (int j = 0; j < SIZE; j++) {
-           if (maze[i][j] == 0) {
+            if (maze[i][j] == 0) {
                 // Draw wall (black color)
                 cairo_set_source_rgb(cr, 0, 0, 0);
-            }
-            else if(i==0 && j==0)
-            {
-                cairo_set_source_rgb(cr, 0, 1, 0);
-            }
-            else if(i==SIZE-2 && j==SIZE-2)
-            {
-                cairo_set_source_rgb(cr, 1, 0, 0);
-            }
-            else if(i==SIZE-1 && j==SIZE-1)
-            {
-                cairo_set_source_rgb(cr, 0, 0, 0);
-            }
-            else
-            {     // Draw path (white color)
+            } else if (i == 0 && j == 0) {
+                cairo_set_source_rgb(cr, 0, 1, 0);  // Start (green)
+            } else if (i == SIZE - 2 && j == SIZE - 2) {
+                cairo_set_source_rgb(cr, 1, 0, 0);  // End (red)
+            } else {
+                // Draw path (white color)
                 cairo_set_source_rgb(cr, 1, 1, 1);
             }
             cairo_rectangle(cr, j * 20, i * 20, 20, 20);
@@ -78,17 +93,20 @@ static void draw_maze(GtkDrawingArea *area, cairo_t *cr, gpointer user_data) {
 int main(int argc, char *argv[]) {
     srand(time(NULL)); // Seed the random number generator
 
-    // Initialize the maze with walls
+    // Initialize the maze with walls (0s)
     for (int i = 0; i < SIZE; i++) {
         for (int j = 0; j < SIZE; j++) {
-            maze[i][j] = 0; // Initialize walls
+            maze[i][j] = 0;  // Start with 0s (path) to mark walls during generation
         }
     }
 
     // Generate the maze starting from (0, 0)
     generate_maze(0, 0);
-    maze[0][0]=3;
-    maze[SIZE-2][SIZE-2]=4;
+    maze[0][0] = 3;  // Start point
+    maze[SIZE - 2][SIZE - 2] = 4;  // End point
+
+    // Add extra paths to create multiple solutions (limit the number of extra paths)
+    add_extra_paths();
 
     // Initialize GTK
     gtk_init(&argc, &argv);
@@ -105,6 +123,14 @@ int main(int argc, char *argv[]) {
 
     gtk_widget_show_all(window);
     gtk_main();
+
+    // Print the maze for debugging
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            printf("%d ", maze[i][j]);
+        }
+        printf("\n");
+    }
 
     return 0;
 }
