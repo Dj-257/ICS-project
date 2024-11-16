@@ -10,7 +10,7 @@ GtkWidget *window, *main_window, *scrolled_window;
 GtkWidget *stack;
 GtkWidget *login_fixed, *register_fixed;
 GtkWidget *box ,*grid;
-GtkWidget *logout_button, *generate_button, *solve_button;
+GtkWidget *logout_button, *generate_button, *solve_button1, *solve_button2, *solve_button3;
 GtkWidget *maze_size_entry, *maze_size_label;
 GtkWidget *maze_area, *solved_maze_area;
 GtkWidget *username, *password;
@@ -133,6 +133,7 @@ void main_window_create(const char *username) {
     generate_button = gtk_button_new_with_label("Generate Maze");
     gtk_widget_set_halign(generate_button, GTK_ALIGN_CENTER);
     gtk_grid_attach(GTK_GRID(grid), generate_button, 0, 2, 2, 1);
+    
 
     maze_area = gtk_label_new("Maze will appear here.");
     gtk_widget_set_hexpand(maze_area, TRUE);
@@ -141,9 +142,17 @@ void main_window_create(const char *username) {
     gtk_widget_set_valign(maze_area, GTK_ALIGN_CENTER);
     gtk_grid_attach(GTK_GRID(grid), maze_area, 0, 3, 2, 1);
 
-    solve_button = gtk_button_new_with_label("Solve Maze");
-    gtk_widget_set_halign(solve_button, GTK_ALIGN_CENTER); 
-    gtk_grid_attach(GTK_GRID(grid), solve_button, 0, 4, 2, 1);
+    solve_button1 = gtk_button_new_with_label("Solve Maze Using Djikstra");
+    gtk_widget_set_halign(solve_button1, GTK_ALIGN_START); 
+    gtk_grid_attach(GTK_GRID(grid), solve_button1, 0, 4, 2, 1);
+
+    solve_button2 = gtk_button_new_with_label("Solve Maze using A*");
+    gtk_widget_set_halign(solve_button2, GTK_ALIGN_CENTER); 
+    gtk_grid_attach(GTK_GRID(grid), solve_button2, 0, 4, 2, 1);
+
+    solve_button3 = gtk_button_new_with_label("Solve Maze using Greedy Best First Search");
+    gtk_widget_set_halign(solve_button3, GTK_ALIGN_END); 
+    gtk_grid_attach(GTK_GRID(grid), solve_button3, 0, 4, 2, 1);
 
     solved_maze_area = gtk_label_new("Solved maze will appear here.");
     gtk_widget_set_hexpand(solved_maze_area, TRUE);
