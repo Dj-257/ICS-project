@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define SIZE 20  // Size of the maze (SIZE x SIZE)
+#define SIZE 30  // Size of the maze (SIZE x SIZE)
 
 int maze[SIZE][SIZE];
 
@@ -49,12 +49,25 @@ void generate_maze(int x, int y) {
 static void draw_maze(GtkDrawingArea *area, cairo_t *cr, gpointer user_data) {
     for (int i = 0; i < SIZE; i++) {
         for (int j = 0; j < SIZE; j++) {
-            if (maze[i][j] == 0) {
-                // Draw wall
-                cairo_set_source_rgb(cr, 0, 0, 0); // Black for walls
-            } else {
-                // Draw path
-                cairo_set_source_rgb(cr, 1, 1, 1); // White for paths
+           if (maze[i][j] == 0) {
+                // Draw wall (black color)
+                cairo_set_source_rgb(cr, 0, 0, 0);
+            }
+            else if(i==0 && j==0)
+            {
+                cairo_set_source_rgb(cr, 0, 1, 0);
+            }
+            else if(i==SIZE-2 && j==SIZE-2)
+            {
+                cairo_set_source_rgb(cr, 1, 0, 0);
+            }
+            else if(i==SIZE-1 && j==SIZE-1)
+            {
+                cairo_set_source_rgb(cr, 0, 0, 0);
+            }
+            else
+            {     // Draw path (white color)
+                cairo_set_source_rgb(cr, 1, 1, 1);
             }
             cairo_rectangle(cr, j * 20, i * 20, 20, 20);
             cairo_fill(cr);
@@ -72,8 +85,10 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    // Generate the maze starting from (1, 1)
-    generate_maze(1, 1);
+    // Generate the maze starting from (0, 0)
+    generate_maze(0, 0);
+    maze[0][0]=3;
+    maze[SIZE-2][SIZE-2]=4;
 
     // Initialize GTK
     gtk_init(&argc, &argv);
