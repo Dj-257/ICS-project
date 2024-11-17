@@ -104,10 +104,11 @@ void dijkstraMaze(int maze[][100], int N) {
         }
 
         // Print the maze with the solution path
+        int maze_dijkstra[1000][1000];
         printf("Maze with solution path:\n");
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
-                printf("%d ", maze[i][j]);
+                maze_dijkstra[i][j]= maze[i][j];
             }
             printf("\n");
         }
