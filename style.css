@@ -27,3 +27,13 @@ entry {
     color: #FFFFFF; 
     border: 1px solid #4A4A4A;
 }
+
+.djikstra_label_header {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.a_star_label_header {
+    font-size: 20px;
+    font-weight: bold;
+}

@@ -3,8 +3,6 @@
 #include <string.h>
 #include <gtk/gtk.h>
 
-
-
 //global variables
 GtkWidget *window, *main_window, *scrolled_window;
 GtkWidget *stack;
@@ -13,6 +11,7 @@ GtkWidget *box ,*grid;
 GtkWidget *logout_button, *generate_button, *solve_button1, *solve_button2, *solve_button3;
 GtkWidget *maze_size_entry, *maze_size_label;
 GtkWidget *maze_area, *solved_maze_area, *drawing_area;
+GtkWidget *djikstra_label, *a_star_label, *djikstra_label_header, *a_star_label_header;
 GtkWidget *username, *password;
 GtkWidget *register_username, *register_password;
 GtkWidget *login_button, *register_button;
@@ -20,6 +19,8 @@ GtkWidget *register_button_new, *back_button;
 GtkWidget *welcome_label;
 GtkWidget *label1, *label2, *label3, *label4, *label5;
 GtkWidget *error_label = NULL, *success_label = NULL, *username_error_label = NULL, *empty_error_label = NULL;
+
+GtkCssProvider *css_provider;
 
 #define MAX_EXTRA_PATHS 15 
 
@@ -292,17 +293,40 @@ void main_window_create(const char *username) {
     gtk_widget_set_valign(drawing_area, GTK_ALIGN_CENTER);
     gtk_grid_attach(GTK_GRID(grid), drawing_area, 0, 4, 2, 1);
 
-    solve_button1 = gtk_button_new_with_label("Solve Maze Using Djikstra");
+    djikstra_label_header = gtk_label_new("Djikstra Algorithm");
+    djikstra_label = gtk_label_new(NULL); 
+    gtk_label_set_use_markup(GTK_LABEL(djikstra_label), TRUE); 
+    const char *markup_text =
+    "Time: Slower, explores all paths\n"
+    "Complexity: O((V + E) log V)\n"
+    "Path: Finds the shortest, but may explore unnecessary paths";
+    gtk_label_set_markup(GTK_LABEL(djikstra_label), markup_text);
+    gtk_widget_set_halign(djikstra_label, GTK_ALIGN_START);
+    gtk_widget_set_halign(djikstra_label_header, GTK_ALIGN_START);
+    gtk_grid_attach(GTK_GRID(grid), djikstra_label_header, 0, 3, 1, 2);
+    gtk_grid_attach(GTK_GRID(grid), djikstra_label, 0, 4, 1, 2);
+
+    a_star_label_header = gtk_label_new("A Star Algorithm                                                                                                      ");
+    a_star_label = gtk_label_new(NULL);
+    gtk_label_set_use_markup(GTK_LABEL(a_star_label), TRUE);
+    const char *markup_text2 =
+    "Time: Faster, uses a heuristic to prioritize paths\n"
+    "Complexity: O((V + E) log V)\n"
+    "Path: Finds the shortest with a good heuristic, but can be longer with a bad one";
+    gtk_label_set_markup(GTK_LABEL(a_star_label), markup_text2);
+    gtk_widget_set_halign(a_star_label, GTK_ALIGN_END);
+    gtk_widget_set_halign(a_star_label_header, GTK_ALIGN_END);
+    gtk_grid_attach(GTK_GRID(grid), a_star_label_header, 1, 3, 1, 2);
+    gtk_grid_attach(GTK_GRID(grid), a_star_label, 1, 4, 1, 2);
+
+    solve_button1 = gtk_button_new_with_label("Solve Maze Using Djikstra Algorithm");
     gtk_widget_set_halign(solve_button1, GTK_ALIGN_START); 
     gtk_grid_attach(GTK_GRID(grid), solve_button1, 0, 5, 2, 1);
 
-    solve_button2 = gtk_button_new_with_label("Solve Maze using A*");
-    gtk_widget_set_halign(solve_button2, GTK_ALIGN_CENTER); 
+    solve_button2 = gtk_button_new_with_label("Solve Maze using A Star Algorithm");
+    gtk_widget_set_halign(solve_button2, GTK_ALIGN_END); 
     gtk_grid_attach(GTK_GRID(grid), solve_button2, 0, 5, 2, 1);
 
-    solve_button3 = gtk_button_new_with_label("Solve Maze using Greedy Best First Search");
-    gtk_widget_set_halign(solve_button3, GTK_ALIGN_END); 
-    gtk_grid_attach(GTK_GRID(grid), solve_button3, 0, 5, 2, 1);
 
     solved_maze_area = gtk_label_new("Solved maze will appear here.");
     gtk_widget_set_hexpand(solved_maze_area, TRUE);
@@ -443,7 +467,7 @@ int main(int argc, char *argv[]) {
     gtk_window_set_default_size(GTK_WINDOW(window), 380, 300);
     gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
 
-    GtkCssProvider *css_provider = gtk_css_provider_new();
+    css_provider = gtk_css_provider_new();
     gtk_css_provider_load_from_file(css_provider, g_file_new_for_path("style.css"), NULL);
     gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), GTK_STYLE_PROVIDER(css_provider), GTK_STYLE_PROVIDER_PRIORITY_USER);
 
