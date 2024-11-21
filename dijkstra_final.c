@@ -26,9 +26,32 @@ int **allocate2DArray(int size) {
     return array;
 }
 
+// Function to dynamically allocate a 3D array
+int ***allocate3DArray(int size) {
+    int ***array = (int ***)malloc(size * sizeof(int **));
+    for (int i = 0; i < size; i++) {
+        array[i] = (int **)malloc(size * sizeof(int *));
+        for (int j = 0; j < size; j++) {
+            array[i][j] = (int *)malloc(2 * sizeof(int));
+        }
+    }
+    return array;
+}
+
 // Function to deallocate a 2D array
 void free2DArray(int **array, int size) {
     for (int i = 0; i < size; i++) {
+        free(array[i]);
+    }
+    free(array);
+}
+
+// Function to deallocate a 3D array
+void free3DArray(int ***array, int size) {
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            free(array[i][j]);
+        }
         free(array[i]);
     }
     free(array);
@@ -47,9 +70,9 @@ void dijkstraMaze(MazeData *mazeData) {
 
     int **dist = allocate2DArray(size);
     int **visited = allocate2DArray(size);
-    int pred[size][size][2]; // Predecessor array
+    int ***pred = allocate3DArray(size); // Dynamically allocated 3D predecessor array
 
-    // Initialize distances and visited array
+    // Initialize distances, visited array, and predecessor array
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
             dist[i][j] = INF;
@@ -145,14 +168,25 @@ void dijkstraMaze(MazeData *mazeData) {
 
     free2DArray(dist, size);
     free2DArray(visited, size);
+    free3DArray(pred, size);
 }
 
 // Main function
 int main() {
     MazeData mazeData;
 
+    printf("Enter the size of the maze (N): ");
+    scanf("%d", &mazeData.size);
+
     // Allocate memory for the maze
     mazeData.maze = allocate2DArray(mazeData.size);
+
+    printf("Enter the maze (0 for walls, 1 for paths, 3 for entry, 4 for exit):\n");
+    for (int i = 0; i < mazeData.size; i++) {
+        for (int j = 0; j < mazeData.size; j++) {
+            scanf("%d", &mazeData.maze[i][j]);
+        }
+    }
 
     // Solve the maze using Dijkstra's algorithm
     dijkstraMaze(&mazeData);
