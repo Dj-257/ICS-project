@@ -329,7 +329,7 @@ static void on_solve_button_clicked_dijkstra(GtkWidget *button, gpointer user_da
     gtk_widget_queue_draw(GTK_WIDGET(user_data));
 
     char timepathlabel[256];
-    sprintf(timepathlabel, "The program executes in %.2f microseconds and path length is %d units using Djikstra", maze_data.runtime_dijkstra, maze_data.pathlength_dijkstra);
+    sprintf(timepathlabel, "The program executes in %.9f microseconds and path length is %d units using Djikstra", maze_data.runtime_dijkstra, maze_data.pathlength_dijkstra);
     display_message_timepath(&timepath_label_dijkstra, timepathlabel, 6);
 
 
@@ -459,10 +459,8 @@ void aStarMaze(MazeData *mazeData) {
 
     openList[startX][startY] = 1;
 
-    struct timespec start, end;
-
-    // Get the current time before execution
-    clock_gettime(CLOCK_MONOTONIC, &start);
+    clock_t start, end;
+    start = clock(); // Start measuring time
 
     while (1) {
         // Find the node with the lowest fCost in the open list
@@ -561,7 +559,7 @@ static void on_solve_button_clicked_astar(GtkWidget *button, gpointer user_data)
     gtk_widget_queue_draw(GTK_WIDGET(user_data));
 
     char timepathlabel[256];
-    sprintf(timepathlabel, "The program executes in %.2f microseconds and path length is %d units using A Star", maze_data.runtime_astar, maze_data.pathlength_astar);
+    sprintf(timepathlabel, "The program executes in %.9f microseconds and path length is %d units using A Star", maze_data.runtime_astar, maze_data.pathlength_astar);
     display_message_timepath(&timepath_label_astar, timepathlabel, 7);
 }
 
