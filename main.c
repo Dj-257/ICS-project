@@ -428,8 +428,15 @@ void aStarMaze(MazeData *mazeData) {
     Node **nodes = allocateNodes(mazeData->size);
 
     // Dynamically allocate openList and closedList
+
     int **openList = allocate2DArray(mazeData->size);
     int **closedList = allocate2DArray(mazeData->size);
+    for (int i = 0; i < mazeData->size; i++) {
+    for (int j = 0; j < mazeData->size; j++) {
+        openList[i][j] = 0;  // Initialize open list
+        closedList[i][j] = 0; // Initialize closed list
+    }
+}
 
     // Initialize nodes
     for (int i = 0; i < mazeData->size; i++) {
@@ -517,6 +524,12 @@ void aStarMaze(MazeData *mazeData) {
 
 
 
+=======
+    freeNodes(nodes, mazeData->size);
+    free2DArray(openList, mazeData->size);
+    free2DArray(closedList, mazeData->size);
+}
+>>>>>>> Stashed changes
 
 
 //solved maze generation
@@ -534,6 +547,7 @@ static void on_solve_button_clicked_astar(GtkWidget *button, gpointer user_data)
             free(maze_data.sastar[i]);
         }
         free(maze_data.sastar);
+        maze_data.sastar = NULL;
     }
 
     maze_data.sastar = malloc(sizeof(int *) * size);
