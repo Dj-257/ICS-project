@@ -10,7 +10,7 @@ GtkWidget *login_fixed, *register_fixed;
 GtkWidget *box ,*grid;
 GtkWidget *logout_button, *generate_button, *solve_button1, *solve_button2, *solve_button3;
 GtkWidget *maze_size_entry, *maze_size_label;
-GtkWidget *maze_area, *solved_maze_area, *drawing_area;
+GtkWidget *maze_area, *solved_maze_area, *drawing_area, *drawing_area_djikstra, *drawing_area_astar;
 GtkWidget *djikstra_label, *a_star_label, *djikstra_label_header, *a_star_label_header;
 GtkWidget *username, *password;
 GtkWidget *register_username, *register_password;
@@ -163,6 +163,63 @@ static void on_solve_button_clicked_djikstra(GtkWidget *button, gpointer user_da
 }
 
 static void on_solve_button_clicked_astar(GtkWidget *button, gpointer user_data) {
+
+}
+
+static void draw_maze_djikstra_callback(GtkDrawingArea *area, cairo_t *cr, gpointer user_data) {
+    MazeData *data = (MazeData *)user_data;
+    int size = data->size;
+    int **djikstra_maze = data->sdjikstra;
+
+    if (!djikstra_maze) return;
+
+    double cell_size = 600.0 / size; // Scale to fit the window
+
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            if (djikstra_maze[i][j] == 0) {
+                cairo_set_source_rgb(cr, 0, 0, 0); // Wall
+            } else if (djikstra_maze[i][j] == 3) {
+                cairo_set_source_rgb(cr, 0, 1, 0); // Start
+            } else if (djikstra_maze[i][j] == 4) {
+                cairo_set_source_rgb(cr, 1, 0, 0); // End
+            } else if (djikstra_maze[i][j] == 2) {
+                cairo_set_source_rgb(cr, 0, 1, 0); // Solution Path
+            } else {
+                cairo_set_source_rgb(cr, 1, 1, 1); // Path
+            }
+            cairo_rectangle(cr, j * cell_size, i * cell_size, cell_size, cell_size);
+            cairo_fill(cr);
+        }
+    }
+}
+
+static void draw_maze_astar_callback(GtkDrawingArea *area, cairo_t *cr, gpointer user_data) {
+    MazeData *data = (MazeData *)user_data;
+    int size = data->size;
+    int **astar_maze = data->sastar;
+
+    if (!astar_maze) return;
+
+    double cell_size = 600.0 / size; // Scale to fit the window
+
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            if (astar_maze[i][j] == 0) {
+                cairo_set_source_rgb(cr, 0, 0, 0); // Wall
+            } else if (astar_maze[i][j] == 3) {
+                cairo_set_source_rgb(cr, 0, 1, 0); // Start
+            } else if (astar_maze[i][j] == 4) {
+                cairo_set_source_rgb(cr, 1, 0, 0); // End
+            } else if (astar_maze[i][j] == 2) {
+                cairo_set_source_rgb(cr, 0, 1, 0); // Solution Path
+            } else {
+                cairo_set_source_rgb(cr, 1, 1, 1); // Path
+            }
+            cairo_rectangle(cr, j * cell_size, i * cell_size, cell_size, cell_size);
+            cairo_fill(cr);
+        }
+    }
 
 }
 
@@ -347,9 +404,29 @@ void main_window_create(const char *username) {
     gtk_widget_set_valign(solved_maze_area, GTK_ALIGN_CENTER);
     gtk_grid_attach(GTK_GRID(grid), solved_maze_area, 0, 6, 2, 1);
 
+    drawing_area_djikstra = gtk_drawing_area_new();
+    gtk_widget_set_size_request(drawing_area_djikstra, 600, 600);
+    gtk_widget_set_hexpand(drawing_area_djikstra, TRUE);
+    gtk_widget_set_vexpand(drawing_area_djikstra, TRUE);
+    gtk_widget_set_halign(drawing_area_djikstra, GTK_ALIGN_START);
+    gtk_widget_set_valign(drawing_area_djikstra, GTK_ALIGN_START);
+    gtk_grid_attach(GTK_GRID(grid), drawing_area_djikstra, 0, 7, 2, 1);
+
+    drawing_area_astar = gtk_drawing_area_new();
+    gtk_widget_set_size_request(drawing_area_astar, 600, 600);
+    gtk_widget_set_hexpand(drawing_area_astar, TRUE);
+    gtk_widget_set_vexpand(drawing_area_astar, TRUE);
+    gtk_widget_set_halign(drawing_area_astar, GTK_ALIGN_END);
+    gtk_widget_set_valign(drawing_area_astar, GTK_ALIGN_END);
+    gtk_grid_attach(GTK_GRID(grid), drawing_area_astar, 0, 7, 2, 1);
+
     g_signal_connect(drawing_area, "draw", G_CALLBACK(draw_maze_callback), &maze_data);
-    g_signal_connect();
+    g_signal_connect(drawing_area_djikstra, "draw", G_CALLBACK(draw_maze_djikstra_callback), &maze_data);
+    g_signal_connect(drawing_area_astar, "draw", G_CALLBACK(draw_maze_astar_callback), &maze_data);
+
     g_signal_connect(generate_button, "clicked", G_CALLBACK(on_generate_button_clicked), drawing_area);
+    g_signal_connect(solve_button1, "clicked", G_CALLBACK(on_solve_button_clicked_djikstra), drawing_area_djikstra);
+    g_signal_connect(solve_button2, "clicked", G_CALLBACK(on_solve_button_clicked_astar), drawing_area_astar);
     g_signal_connect(logout_button, "clicked", G_CALLBACK(on_logout_button_clicked), NULL);
 
    
