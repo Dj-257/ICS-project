@@ -519,10 +519,12 @@ void aStarMaze(MazeData *mazeData) {
             }
         }
     }
+    for (int i = 0; i < size; i++) {
+        free(nodes[i]);  // Free each row of the node array
+    }
+    free(nodes);  // Free the array of row pointers
+}    
 
-    // Free dynamically allocated nodes array
-    freeNodes(nodes, mazeData->size);
-}
 
 
 
