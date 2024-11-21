@@ -1,4 +1,3 @@
 can decrease size but on solving increased size crashes
-crashes when no maze generated
-after logout, generate and solve happens together
-astar solution black
+after logout, generate and solve happens together, or crashes
+reducing size causes some glitch in solution drawing
