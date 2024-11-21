@@ -225,7 +225,7 @@ void dijkstraMaze(MazeData *mazeData) {
     // clock_t start, end;
     // start = clock(); // Start time measurement
 // Get the current time before execution
-  struct timespec start, end;
+  struct timespec2 start, end;
     clock_gettime(CLOCK_MONOTONIC, &start);
     while (1) {
         visited[x][y] = 1;
@@ -459,8 +459,12 @@ void aStarMaze(MazeData *mazeData) {
 
     openList[startX][startY] = 1;
 
-    clock_t start, end;
-    start = clock(); // Start measuring time
+    // clock_t start, end;
+    // start = clock(); // Start measuring time
+     struct timespec2 start, end;
+
+    // Get the current time before execution
+    clock_gettime(CLOCK_MONOTONIC, &start);
 
     while (1) {
         // Find the node with the lowest fCost in the open list
