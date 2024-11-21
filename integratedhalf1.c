@@ -459,7 +459,7 @@ int maze_astar[size][size];
 
     //end = clock(); // End measuring time
 
-    gtk_init(&argc, &argv);
+    
 
     GtkWidget *window2 = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window2), "Solved Maze");
@@ -473,8 +473,9 @@ int maze_astar[size][size];
     g_signal_connect(drawing_area2, "draw", G_CALLBACK(draw_maze_dijkstra), &data);
 
     gtk_container_add(GTK_CONTAINER(window2), drawing_area2);
-    gtk_widget_show_all(window2);
-    gtk_main();
+    gtk_widget_hide(window);
+    gtk_widget_show(window2);
+    
 
     // Calculate runtime in microseconds
     //double time_taken = ((double)(end - start)) / CLOCKS_PER_SEC * 1e6;
@@ -487,7 +488,7 @@ int maze_astar[size][size];
 
     //end = clock(); // End measuring time
 
-     gtk_init(&argc, &argv);
+    
 
     GtkWidget *window3 = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window3), "Solved Maze");
@@ -501,7 +502,8 @@ int maze_astar[size][size];
     g_signal_connect(drawing_area3, "draw", G_CALLBACK(draw_maze_astar), &data);
 
     gtk_container_add(GTK_CONTAINER(window), drawing_area3);
-    gtk_widget_show_all(window3);
+    gtk_widget_hide(window2);
+    gtk_widget_show(window3);
     gtk_main();
 
     // Calculate runtime in microseconds

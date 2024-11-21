@@ -16,6 +16,138 @@ typedef struct {
     int **maze;
 } MazeData;
 
+// A structure to represent a node in the maze
+typedef struct {
+    int x, y;       // Coordinates
+    int gCost;      // Cost from start to current node
+    int hCost;      // Heuristic cost to the goal
+    int fCost;      // Total cost (gCost + hCost)
+    int parentX;    // Parent node coordinates (for backtracking)
+    int parentY;
+} Node;
+
+// A* algorithm to solve the maze
+void aStarMaze(int **maze, int N) {
+    int startX = -1, startY = -1, endX = -1, endY = -1;
+
+    // Locate entry (3) and exit (4) points
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            if (maze[i][j] == 3) {
+                startX = i;
+                startY = j;
+            }
+            if (maze[i][j] == 4) {
+                endX = i;
+                endY = j;
+            }
+        }
+    }
+
+    if (startX == -1 || startY == -1 || endX == -1 || endY == -1) {
+        printf("Maze must contain both entry (3) and exit (4) points.\n");
+        return;
+    }
+
+    // Dynamically allocate memory for nodes
+    Node **nodes = (Node **)malloc(N * sizeof(Node *));
+    int **openList = (int **)malloc(N * sizeof(int *));
+    int **closedList = (int **)malloc(N * sizeof(int *));
+    for (int i = 0; i < N; i++) {
+        nodes[i] = (Node *)malloc(N * sizeof(Node));
+        openList[i] = (int *)calloc(N, sizeof(int));
+        closedList[i] = (int *)calloc(N, sizeof(int));
+    }
+
+    // Initialize nodes
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            nodes[i][j].x = i;
+            nodes[i][j].y = j;
+            nodes[i][j].gCost = INF;
+            nodes[i][j].hCost = INF;
+            nodes[i][j].fCost = INF;
+            nodes[i][j].parentX = -1;
+            nodes[i][j].parentY = -1;
+        }
+    }
+
+    // Initialize start node
+    nodes[startX][startY].gCost = 0;
+    nodes[startX][startY].hCost = heuristic(startX, startY, endX, endY);
+    nodes[startX][startY].fCost = nodes[startX][startY].hCost;
+
+    openList[startX][startY] = 1;
+
+    while (1) {
+        // Find the node with the lowest fCost in the open list
+        int minFCost = INF;
+        int currentX = -1, currentY = -1;
+
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                if (openList[i][j] && nodes[i][j].fCost < minFCost) {
+                    minFCost = nodes[i][j].fCost;
+                    currentX = i;
+                    currentY = j;
+                }
+            }
+        }
+
+        if (currentX == -1 || currentY == -1) {
+            printf("No path found from entry to exit.\n");
+            break;
+        }
+
+        if (currentX == endX && currentY == endY) {
+            tracePath(nodes, maze, endX, endY, N);
+            printf("Path found with length: %d\n", nodes[endX][endY].gCost);
+            printf("Maze with solution path:\n");
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    printf("%d ", maze[i][j]);
+                }
+                printf("\n");
+            }
+            break;
+        }
+
+        openList[currentX][currentY] = 0;
+        closedList[currentX][currentY] = 1;
+
+        // Explore neighbors
+        for (int i = 0; i < 4; i++) {
+            int newX = currentX + directions[i][0];
+            int newY = currentY + directions[i][1];
+
+            if (isValid(newX, newY, maze, N)) {
+                int newGCost = nodes[currentX][currentY].gCost + 1;
+                int newHCost = heuristic(newX, newY, endX, endY);
+                int newFCost = newGCost + newHCost;
+
+                if (!openList[newX][newY] || newGCost < nodes[newX][newY].gCost) {
+                    nodes[newX][newY].gCost = newGCost;
+                    nodes[newX][newY].hCost = newHCost;
+                    nodes[newX][newY].fCost = newFCost;
+                    nodes[newX][newY].parentX = currentX;
+                    nodes[newX][newY].parentY = currentY;
+                    openList[newX][newY] = 1;
+                }
+            }
+        }
+    }
+
+    // Free allocated memory
+    for (int i = 0; i < N; i++) {
+        free(nodes[i]);
+        free(openList[i]);
+        free(closedList[i]);
+    }
+    free(nodes);
+    free(openList);
+    free(closedList);
+}
+
 int is_valid(int x, int y, int size, int **maze) {
     return (x >= 0 && x < size && y >= 0 && y < size && maze[x][y] == 0);
 }
