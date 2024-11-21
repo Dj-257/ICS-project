@@ -20,12 +20,12 @@ GtkWidget *login_button, *register_button;
 GtkWidget *register_button_new, *back_button;
 GtkWidget *welcome_label;
 GtkWidget *label1, *label2, *label3, *label4, *label5;
+GtkWidget *timepath_label_dijkstra, *timepath_label_astar;
 GtkWidget *error_label = NULL, *success_label = NULL, *username_error_label = NULL, *empty_error_label = NULL;
 
 GtkCssProvider *css_provider;
 
 //maze generation functions
-#define MAX_EXTRA_PATHS 15 
 
 int directions[4][2] = {
     {-1, 0}, // Up
@@ -85,27 +85,6 @@ void generate_maze(int x, int y, int size, int **maze) {
     }
 }
 
-void add_extra_paths(int size, int **maze) {
-    int extra_paths_added = 0;
-
-    for (int i = 0; i < size && extra_paths_added < MAX_EXTRA_PATHS; i++) {
-        for (int j = 0; j < size && extra_paths_added < MAX_EXTRA_PATHS; j++) {
-            if (maze[i][j] == 1) {
-                
-                if (rand() % 5 == 0) {  
-                    int nx = i + (rand() % 3 - 1); // Randomly step -1, 0, or +1 in x
-                    int ny = j + (rand() % 3 - 1); // Randomly step -1, 0, or +1 in y
-
-                    // Ensure new path is within bounds and not yet a path
-                    if (nx >= 0 && nx < size && ny >= 0 && ny < size && maze[nx][ny] == 0) {
-                        maze[nx][ny] = 1;  // Create a new path
-                        extra_paths_added++; // Increment the path count
-                    }
-                }
-            }
-        }
-    }
-}
 
 static void on_generate_button_clicked(GtkWidget *button, gpointer user_data) {
     const char *size_text = gtk_entry_get_text(GTK_ENTRY(maze_size_entry));
@@ -137,7 +116,7 @@ static void on_generate_button_clicked(GtkWidget *button, gpointer user_data) {
     generate_maze(0, 0, size, maze_data.maze);
     maze_data.maze[0][0] = 3;         // Start point
     maze_data.maze[size - 2][size - 2] = 4; // End point
-    add_extra_paths(size, maze_data.maze);
+
 
     gtk_widget_hide(maze_area);
 
@@ -170,6 +149,18 @@ static void draw_maze_callback(GtkDrawingArea *area, cairo_t *cr, gpointer user_
         }
     }
 }
+
+//message display functions
+
+void display_message_timepath(GtkWidget **label, char *message, int x) {
+    if (*label != NULL) {
+        gtk_widget_destroy(*label);
+    }
+    *label = gtk_label_new(message);
+    gtk_grid_attach(GTK_GRID(grid), *label, 0, x, 1, 1);
+    gtk_widget_show(*label);
+}
+
 
 //solving maze
 
@@ -328,8 +319,23 @@ static void on_solve_button_clicked_dijkstra(GtkWidget *button, gpointer user_da
 
     dijkstraMaze(&maze_data);
     gtk_widget_hide(solved_maze_area);
-
     gtk_widget_queue_draw(GTK_WIDGET(user_data));
+
+
+    // char *timelabel, *pathlabel;
+    // sprintf(timelabel, "The program executes in %d microseconds", maze_data.runtime_dijkstra);
+    // sprintf(pathlabel, "The path length is %d units", maze_data.pathlength_dijkstra);
+    // display_message_timepath(&time_label_dijkstra, timelabel, 8);
+    // display_message_timepath(&path_label_dijkstra, pathlabel, 9);
+
+    
+
+
+    // char *timelabel, *pathlabel;
+    // sprintf(timelabel, "The program executes in %d microseconds", maze_data.runtime_dijkstra);
+    // sprintf(pathlabel, "The path length is %d units", maze_data.pathlength_dijkstra);
+    // gtk_label_set_markup(GTK_LABEL(time_label_dijkstra), timelabel);
+    // gtk_label_set_markup(GTK_LABEL(path_label_dijkstra), pathlabel);
 
 
 }
@@ -388,6 +394,7 @@ void freeNodes(Node **nodes, int size) {
     free(nodes);
 }
 
+
 void tracePath(Node **nodes, MazeData *mazeData, int endX, int endY) {
     // Copy original maze into astar for storing the solution
     for (int i = 0; i < mazeData->size; i++) {
@@ -434,7 +441,7 @@ void aStarMaze(MazeData *mazeData) {
     Node **nodes = allocateNodes(mazeData->size);
 
     // Dynamically allocate openList and closedList
-   int **openList = allocate2DArray(mazeData->size);
+    int **openList = allocate2DArray(mazeData->size);
     int **closedList = allocate2DArray(mazeData->size);
 
     // Initialize nodes
@@ -753,14 +760,6 @@ void main_window_create(const char *username) {
     gtk_widget_set_halign(solve_button2, GTK_ALIGN_END); 
     gtk_grid_attach(GTK_GRID(grid), solve_button2, 0, 5, 2, 1);
 
-
-    solved_maze_area = gtk_label_new("Solved maze will appear here.");
-    gtk_widget_set_hexpand(solved_maze_area, TRUE);
-    gtk_widget_set_vexpand(solved_maze_area, TRUE);
-    gtk_widget_set_halign(solved_maze_area, GTK_ALIGN_CENTER);
-    gtk_widget_set_valign(solved_maze_area, GTK_ALIGN_CENTER);
-    gtk_grid_attach(GTK_GRID(grid), solved_maze_area, 0, 6, 2, 1);
-
     drawing_area_dijkstra = gtk_drawing_area_new();
     gtk_widget_set_size_request(drawing_area_dijkstra, 600, 600);
     gtk_widget_set_hexpand(drawing_area_dijkstra, TRUE);
@@ -776,6 +775,17 @@ void main_window_create(const char *username) {
     gtk_widget_set_halign(drawing_area_astar, GTK_ALIGN_END);
     gtk_widget_set_valign(drawing_area_astar, GTK_ALIGN_END);
     gtk_grid_attach(GTK_GRID(grid), drawing_area_astar, 0, 7, 2, 1);
+
+    timepath_label_dijkstra = gtk_label_new("NIGGA");
+    gtk_widget_set_halign(timepath_label_dijkstra, GTK_ALIGN_CENTER);
+    gtk_grid_attach(GTK_GRID(grid), timepath_label_dijkstra, 0, 6, 2, 1);
+
+
+    timepath_label_astar = gtk_label_new("NIGGA");
+    gtk_widget_set_halign(timepath_label_astar, GTK_ALIGN_CENTER);
+    gtk_grid_attach(GTK_GRID(grid), timepath_label_astar, 0, 7, 2, 1);
+
+
 
     g_signal_connect(drawing_area, "draw", G_CALLBACK(draw_maze_callback), &maze_data);
     g_signal_connect(drawing_area_dijkstra, "draw", G_CALLBACK(draw_maze_dijkstra_callback), &maze_data);
