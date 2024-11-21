@@ -47,6 +47,15 @@ typedef struct {
 
 MazeData maze_data;
 
+typedef struct {
+    int x, y;       // Coordinates
+    int gCost;      // Cost from start to current node
+    int hCost;      // Heuristic cost to the goal
+    int fCost;      // Total cost (gCost + hCost)
+    int parentX;    // Parent node coordinates (for backtracking)
+    int parentY;
+} Node;
+
 int is_valid(int x, int y, int size, int **maze) {
     return (x >= 0 && x < size && y >= 0 && y < size && maze[x][y] == 0);
 }
@@ -325,10 +334,6 @@ static void on_solve_button_clicked_dijkstra(GtkWidget *button, gpointer user_da
 
 }
 
-static void on_solve_button_clicked_astar(GtkWidget *button, gpointer user_data) {
-
-}
-
 static void draw_maze_dijkstra_callback(GtkDrawingArea *area, cairo_t *cr, gpointer user_data) {
     MazeData *data = (MazeData *)user_data;
     int size = data->size;
@@ -355,6 +360,195 @@ static void draw_maze_dijkstra_callback(GtkDrawingArea *area, cairo_t *cr, gpoin
             cairo_fill(cr);
         }
     }
+}
+
+//a star
+
+int heuristic(int x1, int y1, int x2, int y2) {
+    return abs(x1 - x2) + abs(y1 - y2);
+}
+
+int isValid_astar(int x, int y, MazeData *mazeData) {
+    return (x >= 0 && x < mazeData->size && y >= 0 && y < mazeData->size &&
+            (mazeData->maze[x][y] == 1 || mazeData->maze[x][y] == 4));
+}
+
+Node **allocateNodes(int size) {
+    Node **nodes = (Node **)malloc(size * sizeof(Node *));
+    for (int i = 0; i < size; i++) {
+        nodes[i] = (Node *)malloc(size * sizeof(Node));
+    }
+    return nodes;
+}
+
+void freeNodes(Node **nodes, int size) {
+    for (int i = 0; i < size; i++) {
+        free(nodes[i]);
+    }
+    free(nodes);
+}
+
+void tracePath(Node **nodes, MazeData *mazeData, int endX, int endY) {
+    // Copy original maze into astar for storing the solution
+    for (int i = 0; i < mazeData->size; i++) {
+        for (int j = 0; j < mazeData->size; j++) {
+            mazeData->sastar[i][j] = mazeData->maze[i][j];
+        }
+    }
+
+    int x = endX, y = endY;
+    mazeData->pathlength_astar = nodes[endX][endY].gCost;
+
+    while (nodes[x][y].parentX != -1 && nodes[x][y].parentY != -1) {
+        mazeData->sastar[x][y] = 2;
+        int tempX = nodes[x][y].parentX;
+        int tempY = nodes[x][y].parentY;
+        x = tempX;
+        y = tempY;
+    }
+
+    // Mark entry (3) and exit (4) points
+    mazeData->sastar[x][y] = 3;
+    mazeData->sastar[endX][endY] = 4;
+}
+
+// A* algorithm to solve the maze
+void aStarMaze(MazeData *mazeData) {
+    int startX = -1, startY = -1, endX = -1, endY = -1;
+
+    // Locate entry (3) and exit (4) points
+    for (int i = 0; i < mazeData->size; i++) {
+        for (int j = 0; j < mazeData->size; j++) {
+            if (mazeData->maze[i][j] == 3) {
+                startX = i;
+                startY = j;
+            }
+            if (mazeData->maze[i][j] == 4) {
+                endX = i;
+                endY = j;
+            }
+        }
+    }
+
+    // Allocate memory for nodes dynamically
+    Node **nodes = allocateNodes(mazeData->size);
+
+    // Dynamically allocate openList and closedList
+   int **openList = allocate2DArray(mazeData->size);
+    int **closedList = allocate2DArray(mazeData->size);
+
+    // Initialize nodes
+    for (int i = 0; i < mazeData->size; i++) {
+        for (int j = 0; j < mazeData->size; j++) {
+            nodes[i][j].x = i;
+            nodes[i][j].y = j;
+            nodes[i][j].gCost = INF;
+            nodes[i][j].hCost = INF;
+            nodes[i][j].fCost = INF;
+            nodes[i][j].parentX = -1;
+            nodes[i][j].parentY = -1;
+        }
+    }
+
+    // Initialize start node
+    nodes[startX][startY].gCost = 0;
+    nodes[startX][startY].hCost = heuristic(startX, startY, endX, endY);
+    nodes[startX][startY].fCost = nodes[startX][startY].hCost;
+
+    openList[startX][startY] = 1;
+
+    clock_t start, end;
+    start = clock(); // Start measuring time
+
+    while (1) {
+        // Find the node with the lowest fCost in the open list
+        int minFCost = INF;
+        int currentX = -1, currentY = -1;
+
+        for (int i = 0; i < mazeData->size; i++) {
+            for (int j = 0; j < mazeData->size; j++) {
+                if (openList[i][j] && nodes[i][j].fCost < minFCost) {
+                    minFCost = nodes[i][j].fCost;
+                    currentX = i;
+                    currentY = j;
+                }
+            }
+        }
+
+        if (currentX == -1 || currentY == -1) {
+            return; // Just exit if no path found
+        }
+
+        if (currentX == endX && currentY == endY) {
+            tracePath(nodes, mazeData, endX, endY);
+            end = clock(); // End measuring time
+
+            // Calculate runtime in microseconds and store in mazeData
+            mazeData->runtime_astar = ((double)(end - start)) / CLOCKS_PER_SEC * 1e6;
+            break;
+        }
+
+        openList[currentX][currentY] = 0;
+        closedList[currentX][currentY] = 1;
+
+        // Explore neighbors
+        for (int i = 0; i < 4; i++) {
+            int newX = currentX + directions[i][0];
+            int newY = currentY + directions[i][1];
+
+            if (isValid_astar(newX, newY, mazeData) && !closedList[newX][newY]) {
+                int newGCost = nodes[currentX][currentY].gCost + 1;
+                int newHCost = heuristic(newX, newY, endX, endY);
+                int newFCost = newGCost + newHCost;
+
+                if (!openList[newX][newY] || newGCost < nodes[newX][newY].gCost) {
+                    nodes[newX][newY].gCost = newGCost;
+                    nodes[newX][newY].hCost = newHCost;
+                    nodes[newX][newY].fCost = newFCost;
+                    nodes[newX][newY].parentX = currentX;
+                    nodes[newX][newY].parentY = currentY;
+                    openList[newX][newY] = 1;
+                }
+            }
+        }
+    }
+
+    // Free dynamically allocated nodes array
+    freeNodes(nodes, mazeData->size);
+}
+
+
+
+//solved maze generation
+static void on_solve_button_clicked_astar(GtkWidget *button, gpointer user_data) {
+
+    if (maze_data.size == 0) {
+        g_print("Please generate a maze first.\n");
+        return;
+    }
+    
+    int size = maze_data.size;
+
+    if (maze_data.sastar) {
+        for (int i = 0; i < maze_data.size; i++) {
+            free(maze_data.sastar[i]);
+        }
+        free(maze_data.sastar);
+    }
+
+    maze_data.sastar = malloc(sizeof(int *) * size);
+    for (int i = 0; i < size; i++) {
+        maze_data.sastar[i] = malloc(sizeof(int) * size);
+        for (int j = 0; j < size; j++) {
+            maze_data.sastar[i][j] = 0; // Initialize maze
+        }
+    }
+
+    aStarMaze(&maze_data);
+
+    gtk_widget_hide(solved_maze_area);
+    gtk_widget_queue_draw(GTK_WIDGET(user_data));
+
 }
 
 static void draw_maze_astar_callback(GtkDrawingArea *area, cairo_t *cr, gpointer user_data) {
