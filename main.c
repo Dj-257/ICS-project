@@ -3,7 +3,7 @@
 #include <string.h>
 #include <gtk/gtk.h>
 
-//global variables
+//global variables  for widgets
 GtkWidget *window, *main_window, *scrolled_window;
 GtkWidget *stack;
 GtkWidget *login_fixed, *register_fixed;
@@ -35,9 +35,9 @@ int directions[4][2] = {
 typedef struct {
     int size;
     int **maze;
+    int **sdjikstra;
+    int **sastar;
 } MazeData;
-
-
 
 MazeData maze_data;
 
@@ -156,7 +156,17 @@ static void draw_maze_callback(GtkDrawingArea *area, cairo_t *cr, gpointer user_
     }
 }
 
-//general functions
+//solving maze
+
+static void on_solve_button_clicked_djikstra(GtkWidget *button, gpointer user_data) {
+
+}
+
+static void on_solve_button_clicked_astar(GtkWidget *button, gpointer user_data) {
+
+}
+
+//general functions for displaying messages
 void display_message(GtkWidget **label, GtkWidget *parent, const char *message, int x, int y) {
     if (*label != NULL) {
         gtk_widget_destroy(*label);
@@ -280,9 +290,6 @@ void main_window_create(const char *username) {
     gtk_widget_set_halign(generate_button, GTK_ALIGN_CENTER);
     gtk_grid_attach(GTK_GRID(grid), generate_button, 0, 2, 2, 1);
 
-
-
-
     maze_area = gtk_label_new("Maze will appear here.");
     gtk_widget_set_hexpand(maze_area, TRUE);
     gtk_widget_set_vexpand(maze_area, TRUE);
@@ -341,6 +348,7 @@ void main_window_create(const char *username) {
     gtk_grid_attach(GTK_GRID(grid), solved_maze_area, 0, 6, 2, 1);
 
     g_signal_connect(drawing_area, "draw", G_CALLBACK(draw_maze_callback), &maze_data);
+    g_signal_connect();
     g_signal_connect(generate_button, "clicked", G_CALLBACK(on_generate_button_clicked), drawing_area);
     g_signal_connect(logout_button, "clicked", G_CALLBACK(on_logout_button_clicked), NULL);
 
@@ -349,7 +357,7 @@ void main_window_create(const char *username) {
 }
 
 
-//login functions
+//login and register functions
 void on_login_button_clicked(GtkWidget *button, gpointer user_data) {
 
 
@@ -461,6 +469,8 @@ void on_register_button_clicked_final(GtkWidget *button, gpointer user_data) {
 
 }
 
+
+//login window
 int main(int argc, char *argv[]) {
 
     gtk_init(&argc, &argv);
