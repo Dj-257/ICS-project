@@ -728,26 +728,30 @@ void main_window_create(const char *username) {
     gtk_widget_set_valign(drawing_area, GTK_ALIGN_CENTER);
     gtk_grid_attach(GTK_GRID(grid), drawing_area, 0, 4, 2, 1);
 
-    dijkstra_label_header = gtk_label_new("Dijkstra Algorithm");
+    dijkstra_label_header = gtk_label_new("DIJKSTRA ALGORITHM");
     dijkstra_label = gtk_label_new(NULL); 
     gtk_label_set_use_markup(GTK_LABEL(dijkstra_label), TRUE); 
     const char *markup_text =
-    "Time: Slower, explores all paths\n"
+    "Time: Comparatively slower, explores all paths.\n"
     "Complexity: O((V + E) log V)\n"
-    "Path: Finds the shortest, but may explore unnecessary paths";
+    "Path: Finds the shortest path, but may explore unnecessary paths.\n"
+    "Memory consumption: It is slightly more memory efficient."
+    "Application: Suitable when there is no goal or when exploring all nodes is necessary.";
     gtk_label_set_markup(GTK_LABEL(dijkstra_label), markup_text);
     gtk_widget_set_halign(dijkstra_label, GTK_ALIGN_START);
     gtk_widget_set_halign(dijkstra_label_header, GTK_ALIGN_START);
     gtk_grid_attach(GTK_GRID(grid), dijkstra_label_header, 0, 3, 1, 2);
     gtk_grid_attach(GTK_GRID(grid), dijkstra_label, 0, 4, 1, 2);
 
-    a_star_label_header = gtk_label_new("A Star Algorithm                                                                                                      ");
+    a_star_label_header = gtk_label_new("A* SEARCH ALGORITHM                                                                                                      ");
     a_star_label = gtk_label_new(NULL);
     gtk_label_set_use_markup(GTK_LABEL(a_star_label), TRUE);
     const char *markup_text2 =
-    "Time: Faster, uses a heuristic to prioritize paths\n"
+    "Time: Comparatively Faster, uses a heuristic to prioritize paths.\n"
     "Complexity: O((V + E) log V)\n"
-    "Path: Finds the shortest with a good heuristic, but can be longer with a bad one";
+    "Path: Finds the shortest path with a good heuristic, but can be longer with a bad one"
+    "Memory consumption: A* stores information about each node. In big mazes, this can lead to significant memory usage."
+    "Application: Ideal when a goal is known, as the heuristic helps focus the search toward the goal.";
     gtk_label_set_markup(GTK_LABEL(a_star_label), markup_text2);
     gtk_widget_set_halign(a_star_label, GTK_ALIGN_END);
     gtk_widget_set_halign(a_star_label_header, GTK_ALIGN_END);
