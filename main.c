@@ -260,8 +260,12 @@ void dijkstraMaze(MazeData *mazeData) {
 
     end = clock(); // End time measurement
 
-    mazeData->runtime_dijkstra = ((double)(end - start)) / CLOCKS_PER_SEC * 1e6;
-
+    if (size < 20) {
+        mazeData->runtime_dijkstra = ((double)(end - start)) / CLOCKS_PER_SEC * 1e9;
+    } else {
+        mazeData->runtime_dijkstra = ((double)(end - start)) / CLOCKS_PER_SEC * 1e6;
+    }
+    
     if (dist[endX][endY] == INF) {
         mazeData->pathlength_dijkstra = -1; // No solution
     } else {
