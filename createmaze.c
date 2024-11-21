@@ -111,7 +111,7 @@ static void draw_maze(GtkDrawingArea *area, cairo_t *cr, gpointer user_data) {
                 cairo_set_source_rgb(cr, 0, 1, 0);  // Start (green)
             } else if (maze[i][j]==4) {
                 cairo_set_source_rgb(cr, 1, 0, 0);  // End (red)
-            } else if ((i == size-2 && j == size-1)||(i == size-1 && j == size-2)){
+            } else if ((i == size-2 && j == size-3)||(i == size-3 && j == size-2)){
                 cairo_set_source_rgb(cr, 1, 1, 1);
             } else {
                 // Draw path (white color)
@@ -149,8 +149,8 @@ int main(int argc, char *argv[]) {
 
     // Ensure there's at least one path from (0, 0) to (SIZE - 1, SIZE - 1)
     maze[0][0] = 3;  // Start point
-    maze[SIZE-1][SIZE-2]=1;
-    maze[SIZE-2][SIZE-1]=1;
+    maze[SIZE-2][SIZE-3]=1;
+    maze[SIZE-3][SIZE-2]=1;
 
     if(SIZE%2==0)
     {
