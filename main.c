@@ -22,6 +22,7 @@ GtkWidget *error_label = NULL, *success_label = NULL, *username_error_label = NU
 
 GtkCssProvider *css_provider;
 
+//maze generation functions
 #define MAX_EXTRA_PATHS 15 
 
 int directions[4][2] = {
@@ -35,6 +36,8 @@ typedef struct {
     int size;
     int **maze;
 } MazeData;
+
+
 
 MazeData maze_data;
 
@@ -94,7 +97,7 @@ static void on_generate_button_clicked(GtkWidget *button, gpointer user_data) {
     int size = atoi(size_text);
 
     if (size <= 0 || size > 300) { 
-        g_print("Invalid maze size. Please enter a positive integer up to 100.\n");
+        g_print("Invalid maze size. Please enter a positive integer up to 300.\n");
         return;
     }
 
@@ -153,7 +156,7 @@ static void draw_maze_callback(GtkDrawingArea *area, cairo_t *cr, gpointer user_
     }
 }
 
-
+//general functions
 void display_message(GtkWidget **label, GtkWidget *parent, const char *message, int x, int y) {
     if (*label != NULL) {
         gtk_widget_destroy(*label);
@@ -221,6 +224,8 @@ void on_logout_button_clicked(GtkWidget *button, gpointer user_data) {
     gtk_widget_show(window);
 }
 
+
+//main window
 void main_window_create(const char *username) {
 
     maze_data.size = 0;
@@ -344,7 +349,7 @@ void main_window_create(const char *username) {
 }
 
 
-
+//login functions
 void on_login_button_clicked(GtkWidget *button, gpointer user_data) {
 
 
