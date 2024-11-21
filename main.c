@@ -513,6 +513,7 @@ void aStarMaze(MazeData *mazeData) {
             }
         }
     }
+<<<<<<< Updated upstream
 
 
 
