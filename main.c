@@ -90,8 +90,8 @@ static void on_generate_button_clicked(GtkWidget *button, gpointer user_data) {
     const char *size_text = gtk_entry_get_text(GTK_ENTRY(maze_size_entry));
     int size = atoi(size_text);
 
-    if (size <= 0 || size > 300) { 
-        g_print("Invalid maze size. Please enter a positive integer up to 300.\n");
+    if (size <= 3 || size > 300) { 
+        g_print("Invalid maze size. Please enter a positive integer up to 300 and greater than 3.\n");
         return;
     }
 
@@ -321,24 +321,8 @@ static void on_solve_button_clicked_dijkstra(GtkWidget *button, gpointer user_da
     gtk_widget_queue_draw(GTK_WIDGET(user_data));
 
     char timepathlabel[256];
-    sprintf(timepathlabel, "The program executes in %.2f microseconds and path length is %d units", maze_data.runtime_dijkstra, maze_data.pathlength_dijkstra);
+    sprintf(timepathlabel, "The program executes in %.2f microseconds and path length is %d units using Djikstra", maze_data.runtime_dijkstra, maze_data.pathlength_dijkstra);
     display_message_timepath(&timepath_label_dijkstra, timepathlabel, 6);
-
-
-    // char *timelabel, *pathlabel;
-    // sprintf(timelabel, "The program executes in %d microseconds", maze_data.runtime_dijkstra);
-    // sprintf(pathlabel, "The path length is %d units", maze_data.pathlength_dijkstra);
-    // display_message_timepath(&time_label_dijkstra, timelabel, 8);
-    // display_message_timepath(&path_label_dijkstra, pathlabel, 9);
-
-    
-
-
-    // char *timelabel, *pathlabel;
-    // sprintf(timelabel, "The program executes in %d microseconds", maze_data.runtime_dijkstra);
-    // sprintf(pathlabel, "The path length is %d units", maze_data.pathlength_dijkstra);
-    // gtk_label_set_markup(GTK_LABEL(time_label_dijkstra), timelabel);
-    // gtk_label_set_markup(GTK_LABEL(path_label_dijkstra), pathlabel);
 
 
 }
@@ -390,12 +374,12 @@ Node **allocateNodes(int size) {
     return nodes;
 }
 
-void freeNodes(Node **nodes, int size) {
-    for (int i = 0; i < size; i++) {
-        free(nodes[i]);
-    }
-    free(nodes);
-}
+// void freeNodes(Node **nodes, int size) {
+//     for (int i = 0; i < size; i++) {
+//         free(nodes[i]);
+//     }
+//     free(nodes);
+// }
 
 
 void tracePath(Node **nodes, MazeData *mazeData, int endX, int endY) {
@@ -522,10 +506,9 @@ void aStarMaze(MazeData *mazeData) {
             }
         }
     }
-<<<<<<< Updated upstream
-    freeNodes(nodes, mazeData->size);
-}
-=======
+
+
+
     for (int i = 0; i < mazeData->size; i++) {
         free(nodes[i]);  // Free each row of the node array
     }
@@ -533,7 +516,7 @@ void aStarMaze(MazeData *mazeData) {
 }    
 
 
->>>>>>> Stashed changes
+
 
 
 //solved maze generation
@@ -565,7 +548,7 @@ static void on_solve_button_clicked_astar(GtkWidget *button, gpointer user_data)
     gtk_widget_queue_draw(GTK_WIDGET(user_data));
 
     char timepathlabel[256];
-    sprintf(timepathlabel, "The program executes in %.2f microseconds and path length is %d units", maze_data.runtime_astar, maze_data.pathlength_astar);
+    sprintf(timepathlabel, "The program executes in %.2f microseconds and path length is %d units using A Star", maze_data.runtime_astar, maze_data.pathlength_astar);
     display_message_timepath(&timepath_label_astar, timepathlabel, 7);
 }
 
@@ -744,27 +727,27 @@ void main_window_create(const char *username) {
     "Time: Comparatively slower, explores all paths.\n"
     "Complexity: O((V + E) log V)\n"
     "Path: Finds the shortest path, but may explore unnecessary paths.\n"
-    "Memory consumption: It is slightly more memory efficient."
-    "Application: Suitable when there is no goal or when exploring all nodes is necessary.";
+    "Memory consumption: It is slightly more memory efficient.\n"
+    "Application: Suitable when there is no goal or when exploring all nodes is necessary.\n";
     gtk_label_set_markup(GTK_LABEL(dijkstra_label), markup_text);
     gtk_widget_set_halign(dijkstra_label, GTK_ALIGN_START);
     gtk_widget_set_halign(dijkstra_label_header, GTK_ALIGN_START);
-    gtk_grid_attach(GTK_GRID(grid), dijkstra_label_header, 0, 3, 1, 2);
+    gtk_grid_attach(GTK_GRID(grid), dijkstra_label_header, 0, 2, 1, 2);
     gtk_grid_attach(GTK_GRID(grid), dijkstra_label, 0, 4, 1, 2);
 
-    a_star_label_header = gtk_label_new("A* SEARCH ALGORITHM                                                                                                      ");
+    a_star_label_header = gtk_label_new("A STAR ALGORITHM                                                                                                      ");
     a_star_label = gtk_label_new(NULL);
     gtk_label_set_use_markup(GTK_LABEL(a_star_label), TRUE);
     const char *markup_text2 =
     "Time: Comparatively Faster, uses a heuristic to prioritize paths.\n"
     "Complexity: O((V + E) log V)\n"
-    "Path: Finds the shortest path with a good heuristic, but can be longer with a bad one"
-    "Memory consumption: A* stores information about each node. In big mazes, this can lead to significant memory usage."
-    "Application: Ideal when a goal is known, as the heuristic helps focus the search toward the goal.";
+    "Path: Finds the shortest path with a good heuristic, but can be longer with a bad one.\n"
+    "Memory consumption: A* stores information about each node. In big mazes,\nthis can lead to significant memory usage.\n"
+    "Application: Ideal when a goal is known, as the heuristic helps focus the search toward the goal.\n";
     gtk_label_set_markup(GTK_LABEL(a_star_label), markup_text2);
     gtk_widget_set_halign(a_star_label, GTK_ALIGN_END);
     gtk_widget_set_halign(a_star_label_header, GTK_ALIGN_END);
-    gtk_grid_attach(GTK_GRID(grid), a_star_label_header, 1, 3, 1, 2);
+    gtk_grid_attach(GTK_GRID(grid), a_star_label_header, 1, 2, 1, 2);
     gtk_grid_attach(GTK_GRID(grid), a_star_label, 1, 4, 1, 2);
 
     solve_button1 = gtk_button_new_with_label("Solve Maze Using Dijkstra Algorithm");
