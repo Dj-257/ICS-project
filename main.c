@@ -157,7 +157,7 @@ void display_message_timepath(GtkWidget **label, char *message, int x) {
         gtk_widget_destroy(*label);
     }
     *label = gtk_label_new(message);
-    gtk_grid_attach(GTK_GRID(grid), *label, 0, x, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), *label, 0, x, 2, 1);
     gtk_widget_show(*label);
 }
 
@@ -318,8 +318,11 @@ static void on_solve_button_clicked_dijkstra(GtkWidget *button, gpointer user_da
     }
 
     dijkstraMaze(&maze_data);
-    gtk_widget_hide(solved_maze_area);
     gtk_widget_queue_draw(GTK_WIDGET(user_data));
+
+    char timepathlabel[256];
+    sprintf(timepathlabel, "The program executes in %.2f microseconds and path length is %d units", maze_data.runtime_dijkstra, maze_data.pathlength_dijkstra);
+    display_message_timepath(&timepath_label_dijkstra, timepathlabel, 6);
 
 
     // char *timelabel, *pathlabel;
@@ -519,8 +522,18 @@ void aStarMaze(MazeData *mazeData) {
             }
         }
     }
+<<<<<<< Updated upstream
     freeNodes(nodes, mazeData->size);
 }
+=======
+    for (int i = 0; i < mazeData->size; i++) {
+        free(nodes[i]);  // Free each row of the node array
+    }
+    free(nodes);  // Free the array of row pointers
+}    
+
+
+>>>>>>> Stashed changes
 
 
 //solved maze generation
@@ -549,10 +562,11 @@ static void on_solve_button_clicked_astar(GtkWidget *button, gpointer user_data)
     }
 
     aStarMaze(&maze_data);
-
-    gtk_widget_hide(solved_maze_area);
     gtk_widget_queue_draw(GTK_WIDGET(user_data));
 
+    char timepathlabel[256];
+    sprintf(timepathlabel, "The program executes in %.2f microseconds and path length is %d units", maze_data.runtime_astar, maze_data.pathlength_astar);
+    display_message_timepath(&timepath_label_astar, timepathlabel, 7);
 }
 
 static void draw_maze_astar_callback(GtkDrawingArea *area, cairo_t *cr, gpointer user_data) {
@@ -761,6 +775,7 @@ void main_window_create(const char *username) {
     gtk_widget_set_halign(solve_button2, GTK_ALIGN_END); 
     gtk_grid_attach(GTK_GRID(grid), solve_button2, 0, 5, 2, 1);
 
+
     drawing_area_dijkstra = gtk_drawing_area_new();
     gtk_widget_set_size_request(drawing_area_dijkstra, 600, 600);
     gtk_widget_set_hexpand(drawing_area_dijkstra, TRUE);
@@ -777,12 +792,12 @@ void main_window_create(const char *username) {
     gtk_widget_set_valign(drawing_area_astar, GTK_ALIGN_END);
     gtk_grid_attach(GTK_GRID(grid), drawing_area_astar, 0, 7, 2, 1);
 
-    timepath_label_dijkstra = gtk_label_new("NIGGA");
+    timepath_label_dijkstra = gtk_label_new("Runtime and Path length for Djikstra will appear here");
     gtk_widget_set_halign(timepath_label_dijkstra, GTK_ALIGN_CENTER);
     gtk_grid_attach(GTK_GRID(grid), timepath_label_dijkstra, 0, 6, 2, 1);
 
 
-    timepath_label_astar = gtk_label_new("NIGGA");
+    timepath_label_astar = gtk_label_new("Runtime and Path length for A Star will appear here");
     gtk_widget_set_halign(timepath_label_astar, GTK_ALIGN_CENTER);
     gtk_grid_attach(GTK_GRID(grid), timepath_label_astar, 0, 7, 2, 1);
 
