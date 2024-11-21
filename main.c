@@ -517,8 +517,6 @@ void aStarMaze(MazeData *mazeData) {
             }
         }
     }
-<<<<<<< Updated upstream
-
 
 
     for (int i = 0; i < mazeData->size; i++) {
@@ -529,12 +527,7 @@ void aStarMaze(MazeData *mazeData) {
 
 
 
-=======
-    freeNodes(nodes, mazeData->size);
-    free2DArray(openList, mazeData->size);
-    free2DArray(closedList, mazeData->size);
-}
->>>>>>> Stashed changes
+
 
 
 //solved maze generation
