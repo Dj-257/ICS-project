@@ -1,0 +1,2 @@
+can decrease size but on solving increased size crashes
+crashes when no maze generated
