@@ -1,3 +1,5 @@
-can decrease size but on solving increased size crashes
+can decrease size but on solving increased size app crashes
 after logout, generate and solve happens together, or crashes
 reducing size causes some glitch in solution drawing
+saksham maze
+runtime accuracy

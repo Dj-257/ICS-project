@@ -167,8 +167,8 @@ static void on_generate_button_clicked(GtkWidget *button, gpointer user_data) {
     DisjointSet *ds = create_set(size * size);
     generate_maze(0, 0, size, maze_data.maze, ds);
     maze_data.maze[0][0] = 3; // Start point
-    maze_data.maze[size-1][size-2]=1;
-    maze_data.maze[size-2][size-1]=1;         
+    maze_data.maze[size-3][size-2]=1;
+    maze_data.maze[size-2][size-3]=1;         
     
     if(size%2==0)
     {
@@ -207,6 +207,8 @@ static void draw_maze_callback(GtkDrawingArea *area, cairo_t *cr, gpointer user_
                 cairo_set_source_rgb(cr, 0, 1, 0); // Start
             } else if (maze[i][j] == 4) {
                 cairo_set_source_rgb(cr, 1, 0, 0); // End
+            } else if ((i == size-2 && j == size-3)||(i == size-3 && j == size-2)){
+                cairo_set_source_rgb(cr, 1, 1, 1);
             } else {
                 cairo_set_source_rgb(cr, 1, 1, 1); // Path
             }
