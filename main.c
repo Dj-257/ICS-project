@@ -152,6 +152,23 @@ static void on_generate_button_clicked(GtkWidget *button, gpointer user_data) {
             free(maze_data.maze[i]);
         }
         free(maze_data.maze);
+        maze_data.maze = NULL;    
+    }
+
+    if (maze_data.sdijkstra) {
+        for (int i = 0; i < maze_data.size; i++) {
+            free(maze_data.sdijkstra[i]);
+        }
+        free(maze_data.sdijkstra);
+        maze_data.sdijkstra = NULL;
+    }
+
+    if (maze_data.sastar) {
+        for (int i = 0; i < maze_data.size; i++) {
+            free(maze_data.sastar[i]);
+        }
+        free(maze_data.sastar);
+        maze_data.sastar = NULL;
     }
 
     maze_data.size = size;
@@ -170,20 +187,21 @@ static void on_generate_button_clicked(GtkWidget *button, gpointer user_data) {
     maze_data.maze[size-3][size-2]=1;
     maze_data.maze[size-2][size-3]=1;         
     
-    if(size%2==0)
-    {
+    if(size%2==0) {
         maze_data.maze[size - 2][size - 2] = 4;  // End point
-    }
-    else if(size%2!=0)
-    {
+    } else if(size%2!=0) {
         maze_data.maze[size - 1][size - 1] = 4;
     }
 
 
     gtk_widget_hide(maze_area);
+    gtk_widget_hide(drawing_area_dijkstra);
+    gtk_widget_hide(drawing_area_astar);
+    gtk_widget_hide(timepath_label_dijkstra);
+    gtk_widget_hide(timepath_label_astar);
 
     // Force redraw of the drawing area
-    gtk_widget_queue_draw(GTK_WIDGET(user_data));
+    gtk_widget_queue_draw(GTK_WIDGET(drawing_area));
 
     free(ds->parent);
     free(ds->rank);
@@ -375,10 +393,11 @@ static void on_solve_button_clicked_dijkstra(GtkWidget *button, gpointer user_da
     int size = maze_data.size;
 
     if (maze_data.sdijkstra) {
-        for (int i = 0; i < maze_data.size; i++) {
+        for (int i = 0; i < size; i++) {
             free(maze_data.sdijkstra[i]);
         }
         free(maze_data.sdijkstra);
+        maze_data.sdijkstra = NULL;
     }
 
     maze_data.sdijkstra = malloc(sizeof(int *) * size);
@@ -390,7 +409,8 @@ static void on_solve_button_clicked_dijkstra(GtkWidget *button, gpointer user_da
     }
 
     dijkstraMaze(&maze_data);
-    gtk_widget_queue_draw(GTK_WIDGET(user_data));
+    gtk_widget_queue_draw(GTK_WIDGET(drawing_area_dijkstra));
+    gtk_widget_show(drawing_area_dijkstra);
 
     char timepathlabel[256];
     sprintf(timepathlabel, "The program executes in %.9f microseconds and path length is %d units using Djikstra", maze_data.runtime_dijkstra, maze_data.pathlength_dijkstra);
@@ -591,6 +611,9 @@ void aStarMaze(MazeData *mazeData) {
         free(nodes[i]);  // Free each row of the node array
     }
     free(nodes);  // Free the array of row pointers
+
+    free2DArray(openList, mazeData->size);
+    free2DArray(closedList, mazeData->size);
 }    
 
 
@@ -609,7 +632,7 @@ static void on_solve_button_clicked_astar(GtkWidget *button, gpointer user_data)
     int size = maze_data.size;
 
     if (maze_data.sastar) {
-        for (int i = 0; i < maze_data.size; i++) {
+        for (int i = 0; i < size; i++) {
             free(maze_data.sastar[i]);
         }
         free(maze_data.sastar);
@@ -625,11 +648,13 @@ static void on_solve_button_clicked_astar(GtkWidget *button, gpointer user_data)
     }
 
     aStarMaze(&maze_data);
-    gtk_widget_queue_draw(GTK_WIDGET(user_data));
+    gtk_widget_queue_draw(GTK_WIDGET(drawing_area_astar));
+    gtk_widget_show(drawing_area_astar);
 
     char timepathlabel[256];
     sprintf(timepathlabel, "The program executes in %.9f microseconds and path length is %d units using A Star", maze_data.runtime_astar, maze_data.pathlength_astar);
     display_message_timepath(&timepath_label_astar, timepathlabel, 7);
+
 }
 
 static void draw_maze_astar_callback(GtkDrawingArea *area, cairo_t *cr, gpointer user_data) {
@@ -855,12 +880,12 @@ void main_window_create(const char *username) {
     gtk_widget_set_valign(drawing_area_astar, GTK_ALIGN_END);
     gtk_grid_attach(GTK_GRID(grid), drawing_area_astar, 0, 7, 2, 1);
 
-    timepath_label_dijkstra = gtk_label_new("Runtime and Path length for Djikstra will appear here");
+
+    timepath_label_dijkstra= gtk_label_new(NULL);
     gtk_widget_set_halign(timepath_label_dijkstra, GTK_ALIGN_CENTER);
     gtk_grid_attach(GTK_GRID(grid), timepath_label_dijkstra, 0, 6, 2, 1);
 
-
-    timepath_label_astar = gtk_label_new("Runtime and Path length for A Star will appear here");
+    timepath_label_astar = gtk_label_new(NULL);
     gtk_widget_set_halign(timepath_label_astar, GTK_ALIGN_CENTER);
     gtk_grid_attach(GTK_GRID(grid), timepath_label_astar, 0, 7, 2, 1);
 
