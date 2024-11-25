@@ -183,14 +183,16 @@ static void on_generate_button_clicked(GtkWidget *button, gpointer user_data) {
     // Generate maze
     DisjointSet *ds = create_set(size * size);
     generate_maze(0, 0, size, maze_data.maze, ds);
+
     maze_data.maze[0][0] = 3; // Start point
-    maze_data.maze[size-3][size-2]=1;
-    maze_data.maze[size-2][size-3]=1;         
+    maze_data.maze[size - 1][size - 1] = 4; // End point
+        
     
-    if(size%2==0) {
-        maze_data.maze[size - 2][size - 2] = 4;  // End point
-    } else if(size%2!=0) {
-        maze_data.maze[size - 1][size - 1] = 4;
+    if (maze_data.maze[size - 2][size - 1] == 0) {
+        maze_data.maze[size - 2][size - 1] = 1;
+    }
+    if (maze_data.maze[size - 1][size - 2] == 0) {
+        maze_data.maze[size - 1][size - 2] = 1;
     }
 
 
@@ -466,12 +468,6 @@ Node **allocateNodes(int size) {
     return nodes;
 }
 
-// void freeNodes(Node **nodes, int size) {
-//     for (int i = 0; i < size; i++) {
-//         free(nodes[i]);
-//     }
-//     free(nodes);
-// }
 
 
 void tracePath(Node **nodes, MazeData *mazeData, int endX, int endY) {
