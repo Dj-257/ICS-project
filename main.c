@@ -27,10 +27,10 @@ GtkCssProvider *css_provider;
 
 //structures for maze data
 int directions[4][2] = {
-    {-1, 0}, // Up
-    {1, 0},  // Down
-    {0, -1}, // Left
-    {0, 1}   // Right
+    {-1, 0}, 
+    {1, 0},  
+    {0, -1}, 
+    {0, 1}   
 };
 
 typedef struct {
@@ -55,56 +55,15 @@ typedef struct {
     int parentY;
 } Node;
 
-typedef struct {
-    int *parent;
-    int *rank;
-    int size;
-} DisjointSet;
-
 
 //maze generation functions
 
-DisjointSet* create_set(int size) {
-    DisjointSet *ds = malloc(sizeof(DisjointSet));
-    ds->parent = malloc(size * sizeof(int));
-    ds->rank = malloc(size * sizeof(int));
-    ds->size = size;
-
-    for (int i = 0; i < size; i++) {
-        ds->parent[i] = i;
-        ds->rank[i] = 0;
-    }
-
-    return ds;
-}
-
-int find(DisjointSet *ds, int x) {
-    if (ds->parent[x] != x)
-        ds->parent[x] = find(ds, ds->parent[x]);
-    return ds->parent[x];
-}
-
-void union_sets(DisjointSet *ds, int x, int y) {
-    int rootX = find(ds, x);
-    int rootY = find(ds, y);
-
-    if (rootX != rootY) {
-        if (ds->rank[rootX] > ds->rank[rootY])
-            ds->parent[rootY] = rootX;
-        else if (ds->rank[rootX] < ds->rank[rootY])
-            ds->parent[rootX] = rootY;
-        else {
-            ds->parent[rootY] = rootX;
-            ds->rank[rootX]++;
-        }
-    }
-}
 
 int is_valid(int x, int y, int size, int **maze) {
     return (x >= 0 && x < size && y >= 0 && y < size && maze[x][y] == 0);
 }
 
-void generate_maze(int x, int y, int size, int **maze, DisjointSet *ds) {
+void generate_maze(int x, int y, int size, int **maze) {
     maze[x][y] = 1;  // Mark the current cell as a path (1)
 
     for (int i = 0; i < 4; i++) {
@@ -121,20 +80,37 @@ void generate_maze(int x, int y, int size, int **maze, DisjointSet *ds) {
         int nx = x + directions[i][0] * 2;  // Move 2 steps in one direction
         int ny = y + directions[i][1] * 2;
 
+
         if (is_valid(nx, ny, size, maze)) {
-            // Check if the current direction creates a cycle
-            int current_cell = x * size + y;
-            int next_cell = nx * size + ny;
-            if (find(ds, current_cell) != find(ds, next_cell)) {
-                // If not in the same component, mark the wall as a path
-                maze[x + directions[i][0]][y + directions[i][1]] = 1;  // Break the wall
-                union_sets(ds, current_cell, next_cell);  // Union the two components
-                generate_maze(nx, ny, size, maze, ds);  // Recursively visit the next cell
-            }
+            // If the next cell is valid, mark the wall between current and next cell as path
+            maze[x + directions[i][0]][y + directions[i][1]] = 1;  // Break the wall
+            generate_maze(nx, ny, size, maze);  // Recursively visit the next cell
         }
     }
 }
 
+// Function to perform a DFS to check if there's a path from (x, y) to the end point
+int is_reachable(int x, int y, int size, int **maze, int end_x, int end_y) {
+    if (x < 0 || x >= size || y < 0 || y >= size || maze[x][y] != 1) {
+        return 0;  // Not valid or already visited
+    }
+    
+    // If we reach the end point
+    if (x == end_x && y == end_y) {
+        return 1;
+    }
+
+    maze[x][y] = 2;  // Mark as visited
+
+    // Try all four directions
+    for (int i = 0; i < 4; i++) {
+        if (is_reachable(x + directions[i][0], y + directions[i][1], size, maze, end_x, end_y)) {
+            return 1;
+        }
+    }
+
+    return 0;  // No path found
+}
 
 static void on_generate_button_clicked(GtkWidget *button, gpointer user_data) {
 
@@ -181,18 +157,20 @@ static void on_generate_button_clicked(GtkWidget *button, gpointer user_data) {
     }
 
     // Generate maze
-    DisjointSet *ds = create_set(size * size);
-    generate_maze(0, 0, size, maze_data.maze, ds);
+    generate_maze(0, 0, size, maze_data.maze);
 
     maze_data.maze[0][0] = 3; // Start point
-    maze_data.maze[size - 1][size - 1] = 4; // End point
-        
-    
-    if (maze_data.maze[size - 2][size - 1] == 0) {
-        maze_data.maze[size - 2][size - 1] = 1;
-    }
-    if (maze_data.maze[size - 1][size - 2] == 0) {
-        maze_data.maze[size - 1][size - 2] = 1;
+    // Set the end point at a valid location, checking for reachable cells
+    int end_x = (size % 2 == 0) ? size - 2 : size - 1;
+    int end_y = (size % 2 == 0) ? size - 2 : size - 1;
+    maze_data.maze[end_x][end_y] = 4;  // End point (mark it as '4')
+
+        // Ensure the end point is reachable from the start
+    if (!is_reachable(0, 0, size, maze_data.maze, end_x, end_y)) {
+        maze_data.maze[end_x][end_y] = 0;  // Reset the end point
+        generate_maze(0, 0, size, maze_data.maze);  // Regenerate maze
+        maze_data.maze[end_x][end_y] = 4;  // Reassign the end point
+        maze_data.maze[0][0]=3;
     }
 
 
@@ -202,12 +180,8 @@ static void on_generate_button_clicked(GtkWidget *button, gpointer user_data) {
     gtk_widget_hide(timepath_label_dijkstra);
     gtk_widget_hide(timepath_label_astar);
 
-    // Force redraw of the drawing area
     gtk_widget_queue_draw(GTK_WIDGET(drawing_area));
 
-    free(ds->parent);
-    free(ds->rank);
-    free(ds);
 }
 
 static void draw_maze_callback(GtkDrawingArea *area, cairo_t *cr, gpointer user_data) {
